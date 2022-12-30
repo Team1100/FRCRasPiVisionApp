@@ -1,0 +1,9 @@
+#!/bin/sh
+### TYPE: example-python
+echo "Waiting 5 seconds..."
+sleep 5
+cd python-app
+export PYTHONUNBUFFERED=1
+export PYTHONPATH=/home/pi/apriltagCode/apriltag
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/apriltagCode/apriltag/lib
+exec /usr/bin/python3 uploaded.py
