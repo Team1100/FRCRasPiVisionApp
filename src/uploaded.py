@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 #to search for a variable, click on the variable, hit escape, and type "#". Press "n" to move up and "N" to move down
 from cscore import CameraServer
 from networktables import NetworkTablesInstance
@@ -23,10 +24,10 @@ class CameraView(object):
 
 
 class AprilTag(object):
-    def __init__(self, coor, camera):
+    def __init__(self, camera, coor):
+        #self.id = id
         self.normalizedY = (coor[1] - camera.height/2)/(camera.height/2) * -1
         self.normalizedX = (coor[0] - camera.width/2)/(camera.width/2)
-        self.normCoor = [self.normalizedX, self.normalizedY]
         self.pitch = (self.normalizedY/2) * camera.vertFOV
         self.yaw = (self.normalizedX/2) * camera.horizFOV
         #(height of target (meters) - height of camera(meters))/tan(pitch + angle of camera)
@@ -95,7 +96,7 @@ class VisionApplication(object):
 
         # Decide whether to start using team number or IP address
         if self.usingComputerIP:
-            ip = '' #ip of the computer
+            ip = '192.168.102.168' #ip of the computer
             print("Setting up NetworkTables client for team {} at {}".format(self.team,ip))
             ntinst.startClient(ip)
         else:
@@ -138,8 +139,9 @@ class VisionApplication(object):
                     cv2.polylines(input_img1, [rect], True, self.RED, 2)
                     ident = str(det["id"])
                     pos = det["center"].astype(int) + (-10,10)
-                    targets.append(pos)
-                    cv2.putText(input_img1, ident, tuple(pos), self.FONT, 1, self.RED, 2)
+                    targets.append(AprilTag(self.camera,pos))
+                    #targets.append(pos)
+                    #cv2.putText(input_img1, ident, tuple(pos), self.FONT, 1, self.RED, 2)
             
             if not dets: 
                 # If no apriltags are detected, targetDetected is set to false
@@ -147,21 +149,22 @@ class VisionApplication(object):
             else: 
                 # If AprilTags are detected, targetDetected is set to true 
                 self.vision_nt.putNumber('targetDetected',1)
-
-                normalizedY = (targets[0][1] - self.camera.height/2)/(self.camera.height/2) * -1
-                normalizedX = (targets[0][0] - self.camera.width/2)/(self.camera.width/2)
-                self.vision_nt.putNumber('normalizedY', normalizedY) 
-                self.vision_nt.putNumber('normalizedX', normalizedX) 
-                pitch = (normalizedY/2) * 48.9417
-                yaw = (normalizedX/2) * 134.3449
-                self.vision_nt.putNumber('yaw', yaw) 
-                #(height of target (m) - height of camera(m))/tan(pitch + angle of camera)
-                self.distanceFromTarget = (1.8288- .9779) / math.tan(math.radians(pitch + 20.93552078))
-                print(self.distanceFromTarget)
-                offset = targets[0][0] - camCenter
+                print(targets[0].id)
+                #normalizedY = (targets[0][1] - self.camera.height/2)/(self.camera.height/2) * -1
+                #print(targets[0][1])
+                #normalizedX = (targets[0][0] - self.camera.width/2)/(self.camera.width/2)
+                #self.vision_nt.putNumber('normalizedY', normalizedY) 
+                #self.vision_nt.putNumber('normalizedX', normalizedX) 
+                #pitch = (normalizedY/2) * 48.9417
+                #yaw = (normalizedX/2) * 134.3449
+                #self.vision_nt.putNumber('yaw', yaw) 
+                ##(height of target (m) - height of camera(m))/tan(pitch + angle of camera)
+                #self.distanceFromTarget = (1.8288- .9779) / math.tan(math.radians(pitch + 20.93552078))
+                #print(self.distanceFromTarget)
+                #offset = targets[0][0] - camCenter
 			    
-                self.vision_nt.putNumber('offset',offset)
-                self.vision_nt.putNumber('distanceFromTarget', self.distanceFromTarget)
+                #self.vision_nt.putNumber('offset',offset)
+                #self.vision_nt.putNumber('distanceFromTarget', self.distanceFromTarget)
             
             self.cvsrc.putFrame(input_img1) 
 
