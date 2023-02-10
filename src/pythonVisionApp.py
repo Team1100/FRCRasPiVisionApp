@@ -21,7 +21,6 @@ class CameraView(object):
         self.elevationOfCamera = elevationOfCamera
         self.angleFromHoriz = angleFromHoriz
 
-
 class Target(object):
     def __init__(self, camera, coor, id):
         self.id = id
@@ -29,15 +28,13 @@ class Target(object):
         self.normalizedX = (coor[0] - camera.width/2)/(camera.width/2)
         self.pitch = (self.normalizedY/2) * camera.vertFOV
         self.yaw = (self.normalizedX/2) * camera.horizFOV
-        #(height of target (meters) - height of camera(meters))/tan(pitch + angle of camera)
+        #(height of target [feet] - height of camera [feet])/tan(pitch [degrees] + angle of camera [degrees])
         self.distanceToTarget = (camera.elevationOfTarget - camera.elevationOfCamera) / math.tan(math.radians(self.pitch + camera.angleFromHoriz))
-
-
 
 class VisionApplication(object):
     def __init__(self):
         self.TITLE = "apriltag_view"
-        self.TAG = "tag36h11"
+        self.TAG = "tag16h5"
         self.MIN_MARGIN = 10
         self.FONT = cv2.FONT_HERSHEY_SIMPLEX
         self.RED = 0,0,255
@@ -51,18 +48,29 @@ class VisionApplication(object):
         self.distanceFromTarget = 0
         self.vision_nt = None 
 
-        self.usingComputerIP = True 
+        self.usingComputerIP = False 
 
         # Initialize configuration
         self.config = self.readConfig()
         self.team = self.config["team"]
-        #TODO: Fill out values below
-        #vertFOV = 
-        #horizFOV = 
-        #elevationOfTarget = 
-        #elevationOfCamera = 
-        #angleFromHoriz = 
-        self.camera = CameraView(self.config['cameras'][0], 48.94175846, 134.3449419, 1.8288, 0.9779, 20.93552078)
+
+        #TODO: Fill out values below if distance calculation is desired
+        #Vertical Field of View (Degrees)
+        vertFOV = 
+
+        #Horizontal Field of View (Degrees)
+        horizFOV = 
+
+        #Height of the target off the ground (feet)
+        elevationOfTarget = 
+
+        #Height of the Camera off the ground (feet)
+        elevationOfCamera = 
+
+        #Angle the camera makes relative to the horizontal (degrees)
+        angleFromHoriz = 
+
+        self.camera = CameraView(self.config['cameras'][0], vertFOV, horizFOV, elevationOfTarget, elevationOfCamera, angleFromHoriz)
 
         # Initialize Camera Server
         self.initializeCameraServer()
@@ -78,13 +86,13 @@ class VisionApplication(object):
 
     def initializeCameraServer(self):
         cserver = CameraServer.getInstance()
-        cserver.startAutomaticCapture()
+        camera = cserver.startAutomaticCapture()
+        camera.setResolution(self.camera.width,self.camera.height)
+
 
         self.cvsrc = cserver.putVideo("visionCam", self.camera.width,self.camera.height)
         
         self.sink = CameraServer.getInstance().getVideo()
-
-
 
     def initializeNetworkTables(self):
         # Table for vision output information
@@ -101,7 +109,8 @@ class VisionApplication(object):
 
         # Decide whether to start using team number or IP address
         if self.usingComputerIP:
-            ip = '192.168.102.168' #ip of the computer
+            ip = '' #ip of the computer
+            # Ex: ip = '192.168.132.5'
             print("Setting up NetworkTables client for team {} at {}".format(self.team,ip))
             ntinst.startClient(ip)
         else:
@@ -119,18 +128,19 @@ class VisionApplication(object):
         self.vision_nt = ntinst.getTable('Shuffleboard/Vision')
 
     def runApplication(self):
+        input_img1 = np.zeros(shape=(self.camera.height,self.camera.width,3),dtype=np.uint8)
         while True:
             camCenter = (self.camera.width)/2
-            input_img1 = None
+            
             frame_time1, input_img1 = self.sink.grabFrame(input_img1)
+            input_img1 = cv2.resize(input_img1, (self.camera.width,self.camera.height), interpolation = cv2.INTER_AREA)
             
             
             # Notify output of error and skip iteration
             if frame_time1 == 0:
                 self.cvsrc.notifyError(self.sink.getError())
-                print("Error on line 126 with grabbing frame")
+                print("Error on line 135 with grabbing frame")
                 continue
-
 
             greys = cv2.cvtColor(input_img1, cv2.COLOR_BGR2GRAY)
             dets = self.detector.detect(greys)
@@ -153,11 +163,12 @@ class VisionApplication(object):
             else: 
                 # If AprilTags are detected, targetDetected is set to true 
                 self.vision_nt.putNumber('targetDetected',1)
-                #prints to the output on the web dashboard
-                print(self.camera.width)
+
+                # Publishes data to Network Tables
                 self.vision_nt.putNumber('targetX',targets[0].normalizedX)
                 self.vision_nt.putNumber('targetY',targets[0].normalizedY)
-                self.vision_nt.putNumber('distanceToTarget',targets[0].distanceToTarget)
+                # If you want to calculate distance, make sure to fill out the appropriate variables starting on line 59
+                #self.vision_nt.putNumber('distanceToTarget',targets[0].distanceToTarget)
             
             self.cvsrc.putFrame(input_img1) 
 
