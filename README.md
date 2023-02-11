@@ -28,9 +28,9 @@ Welcome to Inverse Polarity's tutorial on how to set up FRC vision on a Raspberr
 7. Learn how to navigate a linux terminal
     1. Follow [this tutorial](https://linuxsurvival.com/) to learn how to use Linux
 8. Make sure the system clock is up to date
-    1. Type `date` into the pi or Git Bash to read out what the system thinks is the current date and time. If it's correct, you can skip to step 9. If it is incorrect, continue to step 8.
+    1. Type `date` into the pi or Git Bash to read out what the system thinks is the current date and time. If it's correct, you can skip to step 10. If it is incorrect, continue to step 9.
 9. Update the system clock
-    1. Type these instructions (insert the correct date for step 3. "Year-Month-Day Hour:Minute:Second").
+    1. Type these instructions (insert the correct date for step C. "Year-Month-Day Hour:Minute:Second").
         1. `sudo bash`
         2. `timedatectl set-timezone America/New_York`
         3. `timedatectl set-time "2023-01-03 16:27:00"`
@@ -62,7 +62,7 @@ Welcome to Inverse Polarity's tutorial on how to set up FRC vision on a Raspberr
         11. `make apriltag_demo`
 12. Configure the python application
     1. Read up on the [VI editor](https://www.redhat.com/sysadmin/introduction-vi-editor)
-    2. ONLY IF you want to simulate the robot on a driver station, then you need to enter your computer ip address into the python program. However, if you plan on setting the pi up directly on the robot, skip to step 12) ii.
+    2. ONLY IF you want to simulate the robot on a driver station, then you need to enter your computer ip address into the python program. However, if you plan on setting the pi up directly on the robot, skip to step 12) iii.
         1. Navigate into the python-app folder.
         2. Start editing the pythonVisionApp.py by typing `vi pythonVisionApp.py`
             1. On line 51, set `usingComputerIP` to `True`
