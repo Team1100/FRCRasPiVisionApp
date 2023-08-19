@@ -5,6 +5,7 @@ Welcome to Inverse Polarity's tutorial on how to set up FRC vision on a Raspberr
 1. Follow [these](https://docs.wpilib.org/en/stable/docs/software/vision-processing/wpilibpi/what-you-need-to-get-the-pi-image-running.html) instructions to set up the Raspberry PI
     1. Stop at the end of the *Installing the image to your MicroSD card* section.
 2. Connect the pi to ethernet and power
+    1. Make sure your computer is on the same network as the pi. The easiest way to ensure this is by connecting both the pi and the computer to the same router.
 3. Type http://wpilibpi.local/ into your browser to interface with the web dashboard.
     1. If the dashboard doesn't show up, you may need to connect a monitor and keyboard into the raspberry pi, and log in. However, if it did show up, skip to step 4.
         1. Username: `pi`
@@ -69,12 +70,14 @@ Welcome to Inverse Polarity's tutorial on how to set up FRC vision on a Raspberr
             2. On line 112, set `ip` to your computer's ip address.
                 1. On Windows, find your ip by opening Command Prompt and typing `ipconfig`
                 2. On Mac, find your ip by opening Terminal and typing `ifconfig`
-    3. To specify which variables you want published to NetworkTables, add additional lines to the code starting at line 172.
+    3. To specify which variables you want published to NetworkTables, add additional lines to the code:
+        1. Search `Data published for Apriltags` to find the start of data published for Apriltags
+        2. Search `Data published for Color` to find the start of data published for Color
     4. If you wish to calculate the distance to a target, move onto step 13.
-        1. Otherwise go to lines 59 through 71, set all five variables to 1, and skip to step 14.
+        1. Otherwise search `Distance Calculation Constants`, set all following ten numbers to 1, and skip to step 14.
 13. Calculate the distance to a target
     1. Read up on calculating distance to a target.
-    2. Go to lines 59 through 71 and fill in the five empty variables.
+    2. search `Distance Calculation Constants` and fill in the five empty lists.
         1. *vertFOV* is the vertical field of view of the camera.
             1. Calulate *vertFOV* by facing the camera toward a wall (making sure it's flat).
             2. Measure the distance from the camera to the wall (We will call this `adjacentDistance`).
